@@ -331,3 +331,117 @@
     execution-params: (optional (buff 100))
   }
 )
+
+;; CROSS-MARGIN SYSTEM
+(define-map cross-margin-accounts
+  { user: principal }
+  {
+    total-collateral: uint,
+    used-margin: uint,
+    maintenance-margin: uint,
+    available-margin: uint,
+    portfolio-pnl: int,
+    risk-score: uint
+  }
+)
+
+;; YIELD FARMING VAULTS
+(define-map yield-vaults
+  { vault-id: uint }
+  {
+    name: (string-ascii 30),
+    strategy-contract: principal,
+    total-assets: uint,
+    total-shares: uint,
+    performance-fee: uint,
+    management-fee: uint,
+    is-active: bool,
+    risk-level: uint
+  }
+)
+
+(define-map vault-positions
+  { vault-id: uint, user: principal }
+  {
+    shares: uint,
+    deposited-amount: uint,
+    entry-timestamp: uint,
+    accumulated-yield: uint
+  }
+)
+
+;; GOVERNANCE SYSTEM
+(define-map governance-proposals
+  { proposal-id: uint }
+  {
+    proposer: principal,
+    title: (string-ascii 100),
+    description: (string-ascii 500),
+    proposal-type: uint,
+    voting-start: uint,
+    voting-end: uint,
+    votes-for: uint,
+    votes-against: uint,
+    quorum-reached: bool,
+    executed: bool
+  }
+)
+
+(define-map governance-votes
+  { proposal-id: uint, voter: principal }
+  {
+    vote: bool, ;; true for yes, false for no
+    voting-power: uint,
+    timestamp: uint
+  }
+)
+
+;; PORTFOLIO ANALYTICS
+(define-map portfolio-metrics
+  { user: principal, period: uint } ;; period in days
+  {
+    total-pnl: int,
+    win-rate: uint,
+    sharpe-ratio: int,
+    max-drawdown: uint,
+    total-trades: uint,
+    avg-holding-period: uint,
+    risk-adjusted-return: int
+  }
+)
+
+;; SOCIAL FEATURES
+(define-map trader-profiles
+  { trader: principal }
+  {
+    display-name: (string-ascii 50),
+    reputation-score: uint,
+    followers: uint,
+    following: uint,
+    public-stats: bool,
+    verified: bool
+  }
+)
+
+(define-map copy-trading
+  { follower: principal, leader: principal }
+  {
+    allocation-percentage: uint,
+    max-position-size: uint,
+    copy-settings: (buff 50),
+    performance: int,
+    start-timestamp: uint
+  }
+)
+
+;; RISK MANAGEMENT ENHANCEMENTS
+(define-map risk-parameters
+  { market-id: uint }
+  {
+    position-limit: uint,
+    concentration-limit: uint,
+    volatility-threshold: uint,
+    correlation-limits: (list 10 uint),
+    stress-test-scenarios: (list 5 uint)
+  }
+)
