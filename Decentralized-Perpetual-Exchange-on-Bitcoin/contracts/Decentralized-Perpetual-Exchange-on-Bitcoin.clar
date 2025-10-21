@@ -445,3 +445,62 @@
     stress-test-scenarios: (list 5 uint)
   }
 )
+
+;; Data variables for counters
+(define-data-var proposal-counter uint u0)
+(define-data-var vault-counter uint u0)
+(define-data-var claim-counter uint u0)
+
+(define-private (calculate-tier (staked-amount uint))
+  (if (>= staked-amount u10000000000) ;; 100 STX
+    TIER_PLATINUM
+    (if (>= staked-amount u5000000000) ;; 50 STX
+      TIER_GOLD
+      (if (>= staked-amount u1000000000) ;; 10 STX
+        TIER_SILVER
+        TIER_BRONZE
+      )
+    )
+  )
+)
+
+(define-private (update-liquidity-rewards (market-id uint) (provider principal))
+  (let (
+    (reward-pool (unwrap! (map-get? reward-pools { market-id: market-id }) (ok true)))
+    (provider-data (unwrap! (map-get? liquidity-providers { provider: provider, market-id: market-id }) (ok true)))
+  )
+    ;; Calculate pending rewards
+    (let (
+      (pending-rewards (* (get staked-amount provider-data) (get accumulated-reward-per-share reward-pool)))
+    )
+      (map-set liquidity-providers
+        { provider: provider, market-id: market-id }
+        (merge provider-data {
+          accumulated-rewards: (+ (get accumulated-rewards provider-data) pending-rewards),
+          reward-debt: pending-rewards
+        })
+      )
+      (ok true)
+    )
+  )
+)
+
+(define-public (contribute-to-insurance (market-id uint) (amount uint))
+  (let (
+    (current-fund (default-to 
+      { balance: u0, contribution-rate: u10, deficit-coverage: u0, last-updated: u0 }
+      (map-get? insurance-fund { market-id: market-id })
+    ))
+  )
+    (asserts! (> amount u0) ERR_INVALID_PARAMETER)
+    
+    (map-set insurance-fund
+      { market-id: market-id }
+      (merge current-fund {
+        balance: (+ (get balance current-fund) amount),
+        last-updated: stacks-block-height
+      })
+    )
+    (ok true)
+  )
+)
