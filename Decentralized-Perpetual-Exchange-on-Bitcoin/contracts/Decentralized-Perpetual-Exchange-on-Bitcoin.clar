@@ -315,3 +315,19 @@
     discount-tier: uint
   }
 )
+
+
+;; ADVANCED ORDER TYPES & STRATEGIES
+(define-map advanced-orders
+  { order-id: (buff 32) }
+  {
+    trader: principal,
+    market-id: uint,
+    order-type: uint, ;; 5: OCO, 6: Trailing Stop, 7: TWAP, 8: Iceberg
+    primary-price: uint,
+    secondary-price: (optional uint),
+    trail-amount: (optional uint),
+    time-in-force: uint,
+    execution-params: (optional (buff 100))
+  }
+)
